@@ -110,7 +110,7 @@ if is_admin():
             print("2- Activate Windows update")
             print("3- Activate Windows license (KMS)")
             print("4- Remove Windows license")
-            print("5- Disable Windows telemtry and diagnostics")
+            print("5- Disable Windows telemetry and diagnostics")
             print("6- Enable Windows telemetry and diagnostics\n")
             option = input("Select an option: ")
 
