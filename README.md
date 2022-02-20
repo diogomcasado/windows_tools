@@ -1,6 +1,9 @@
 # windows_tools
 
-Python scripyt to activate/deactivate windows 10, disable/enable windows updates, telemetry and diagnostics.
+Python script to activate/deactivate windows 10, disable/enable windows updates, telemetry and diagnostics.
+
+![Screenshot](https://github.com/diogomcasado/windows_tools/blob/main/screenshot.PNG)
+
 
 Made for educational purposes only.
 
