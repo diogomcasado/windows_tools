@@ -6,6 +6,11 @@ import os
 import sys
 import time
 from win32com.client import GetObject
+import windows_tools.product_key as product_key
+import windows_tools.bitness as bitness
+import windows_tools.server as server
+import windows_tools.bitlocker as bitlocker
+import windows_tools.windows_firewall as windows_firewall
 
 
 os.system("cls")
@@ -30,13 +35,15 @@ def enable_win_update():
     print("Activating Windows Update...")
     os.system("sc config wuauserv start= auto")
     os.system("net start wuauserv")
-    
+
+
 def activate_win():
     os.system("cls")
     print("--- Windows Activator ---")
-    
+
     wim = GetObject('winmgmts:')
-    windows_detected = ([o.Caption for o in wim.ExecQuery("Select * from Win32_OperatingSystem")][0])
+    windows_detected = ([o.Caption for o in wim.ExecQuery(
+        "Select * from Win32_OperatingSystem")][0])
 
     if windows_detected == 'Microsoft Windows 10 Home':
         serial_key = 'TX9XD-98N7V-6WMQ6-BX7FG-H8Q99'
@@ -58,7 +65,7 @@ def activate_win():
         serial_key = 'WGGHN-J84D6-QYCPR-T7PJ7-X766F'
     else:
         serial_key = 'TX9XD-98N7V-6WMQ6-BX7FG-H8Q99'
-    
+
     print("--- Windows Activator ---")
     print(windows_detected)
 
@@ -72,14 +79,14 @@ def activate_win():
 
     print("\nWindows Activated!")
     print("\nPlease restart you computer")
-    
-    
+
+
 def deactivate_win():
     os.system("slmgr.vbs /upk")
     print("\nWindows deactivated!")
     print("\nPlease restart you computer")
-    
-    
+
+
 def disable_telemetry():
     os.system("cls")
     print("Disabling Windows Telemetry and Diagnostics...")
@@ -87,7 +94,7 @@ def disable_telemetry():
     #os.system("net stop dmwappushservice")
     os.system("sc config dmwappushservice start= disabled")
     os.system("sc config DiagTrack start= disabled")
-    
+
 
 def enable_telemetry():
     os.system("cls")
@@ -103,9 +110,51 @@ if is_admin():
     # ask for file name
     while True:
         option = ""
+        bit64 = ""
+
         try:
             print('https://github.com/diogomcasado\n')
-            print("--- Windows Tools ---")
+
+            print("---- Windows Info ----")
+            print("")
+            print(os.environ['COMPUTERNAME'])
+            print(os.environ['USERNAME'])
+            print(os.environ['PROCESSOR_ARCHITECTURE'], os.environ['NUMBER_OF_PROCESSORS'], "cores")
+
+            try:
+                if bitness.is_64bit():
+                    bit64 = "64-bit"
+                else:
+                    bit64 = "32-bit"
+            except:
+                bit64 = "??-bit"
+            
+            wim = GetObject('winmgmts:')
+            print([o.Caption for o in wim.ExecQuery("Select * from Win32_OperatingSystem")][0], bit64)
+
+            try:
+                print("Current Windows Serial Key: ",
+                      product_key.get_windows_product_key_from_reg())
+            except:
+                print("Current Windows Serial Key: Not detected")
+
+            try:
+                print("Server: ", server.get_windows_version())
+            except:
+                print("Server: Not detected")
+
+            try:
+                if windows_firewall.is_firewall_active():
+                    print("Firewall: Active")
+                else:
+                    print("Firewall: Inactive")
+            except:
+                print("Firewall: Not detected")
+
+
+            print()
+
+            print("\n---- Windows Tools ----")
             print("\n1- Disable Windows update")
             print("2- Activate Windows update")
             print("3- Activate Windows license (KMS)")
