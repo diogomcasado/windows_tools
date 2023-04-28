@@ -45,26 +45,29 @@ def activate_win():
     windows_detected = ([o.Caption for o in wim.ExecQuery(
         "Select * from Win32_OperatingSystem")][0])
 
-    if windows_detected == 'Microsoft Windows 10 Home':
+    if windows_detected == 'Microsoft Windows 10 Home' or windows_detected == 'Microsoft Windows 11 Home':
         serial_key = 'TX9XD-98N7V-6WMQ6-BX7FG-H8Q99'
-    elif windows_detected == 'Microsoft Windows 10 Home N':
+    elif windows_detected == 'Microsoft Windows 10 Home N' or windows_detected == 'Microsoft Windows 11 Home N':
         serial_key = '3KHY7-WNT83-DGQKR-F7HPR-844BM'
-    elif windows_detected == 'Microsoft Windows 10 Pro':
+    elif windows_detected == 'Microsoft Windows 10 Pro' or windows_detected == 'Microsoft Windows 11 Pro':
         serial_key = 'W269N-WFGWX-YVC9B-4J6C9-T83GX'
-    elif windows_detected == 'Microsoft Windows 10 Professional':
+    elif windows_detected == 'Microsoft Windows 10 Professional' or windows_detected == 'Microsoft Windows 11 Professional':
         serial_key = 'W269N-WFGWX-YVC9B-4J6C9-T83GX'
-    elif windows_detected == 'Microsoft Windows 10 Professional N':
+    elif windows_detected == 'Microsoft Windows 10 Professional N' or windows_detected == 'Microsoft Windows 11 Professional N':
         serial_key = 'MH37W-N47XK-V7XM9-C7227-GCQG9'
-    elif windows_detected == 'Microsoft Windows 10 Education':
+    elif windows_detected == 'Microsoft Windows 10 Education' or windows_detected == 'Microsoft Windows 11 Education':
         serial_key = 'NW6C2-QMPVW-D7KKK-3GKT6-VCFB2'
-    elif windows_detected == 'Microsoft Windows 10 Education N':
+    elif windows_detected == 'Microsoft Windows 10 Education N' or windows_detected == 'Microsoft Windows 11 Education N':
         serial_key = '2WH4N-8QGBV-H22JP-CT43Q-MDWWJ'
-    elif windows_detected == 'Microsoft Windows 10 Enterprise':
+    elif windows_detected == 'Microsoft Windows 10 Enterprise' or windows_detected == 'Microsoft Windows 11 Enterprise':
         serial_key = 'NPPR9-FWDCX-D2C8J-H872K-2YT43'
-    elif windows_detected == 'Microsoft Windows 10 Enterprise N':
-        serial_key = 'WGGHN-J84D6-QYCPR-T7PJ7-X766F'
+    elif windows_detected == 'Microsoft Windows 10 Enterprise N' or windows_detected == 'Microsoft Windows 11 Enterprise N':
+        serial_key = 'DPH2V-TTNVB-4X9Q3-TJR4H-KHJW4'
+
     else:
-        serial_key = 'TX9XD-98N7V-6WMQ6-BX7FG-H8Q99'
+        print("\nError: invalid version\n")
+        return
+
 
     print("--- Windows Activator ---")
     print(windows_detected)
@@ -79,6 +82,7 @@ def activate_win():
 
     print("\nWindows Activated!")
     print("\nPlease restart you computer")
+
 
 
 def deactivate_win():
@@ -106,7 +110,6 @@ def enable_telemetry():
 
 
 if is_admin():
-
     # ask for file name
     while True:
         option = ""
