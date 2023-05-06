@@ -84,7 +84,6 @@ def activate_win():
     print("\nPlease restart you computer")
 
 
-
 def deactivate_win():
     os.system("slmgr.vbs /upk")
     print("\nWindows deactivated!")
@@ -107,6 +106,25 @@ def enable_telemetry():
     #os.system("net start dmwappushservice")
     os.system("sc config dmwappushservice start= auto")
     os.system("sc config DiagTrack start= auto")
+
+
+def run_system_file_checker():
+    os.system("cls")
+    print("Running System File Checker...")
+    os.system("sfc /scannow")
+
+
+def run_CHKDSK():
+    os.system("cls")
+    print("Running CHKDSK...")
+    os.system("chkdsk /f /r")
+
+
+def run_disk_cleanup():
+    os.system("cls")
+    print("Running Disk Cleanup...")
+    os.system("cleanmgr")
+
 
 
 if is_admin():
@@ -163,7 +181,10 @@ if is_admin():
             print("3- Activate Windows license (KMS)")
             print("4- Remove Windows license")
             print("5- Disable Windows telemetry and diagnostics")
-            print("6- Enable Windows telemetry and diagnostics\n")
+            print("6- Enable Windows telemetry and diagnostics")
+            print("7- Repair missing or corrupted system files (SFC.exe)")
+            print("8- Disk error checking (CHKDSK)")
+            print("9- Disk cleanup (CLEANMGR)\n")
             option = input("Select an option: ")
 
         finally:
@@ -179,6 +200,12 @@ if is_admin():
                 disable_telemetry()
             elif option == "6":
                 enable_telemetry()
+            elif option == "7":
+                run_system_file_checker()
+            elif option == "8":
+                run_CHKDSK()
+            elif option == "9":
+                run_disk_cleanup()
             else:
                 print("Invalid option")
             break
