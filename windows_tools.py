@@ -3,6 +3,7 @@
 
 import ctypes
 import os
+import shutil
 import sys
 import time
 from win32com.client import GetObject
@@ -16,11 +17,31 @@ import windows_tools.windows_firewall as windows_firewall
 os.system("cls")
 
 
+# Product key per Windows edition (works for both Windows 10 and 11).
+WINDOWS_PRODUCT_KEYS = {
+    'Home': 'TX9XD-98N7V-6WMQ6-BX7FG-H8Q99',
+    'Home N': '3KHY7-WNT83-DGQKR-F7HPR-844BM',
+    'Pro': 'W269N-WFGWX-YVC9B-4J6C9-T83GX',
+    'Professional': 'W269N-WFGWX-YVC9B-4J6C9-T83GX',
+    'Professional N': 'MH37W-N47XK-V7XM9-C7227-GCQG9',
+    'Education': 'NW6C2-QMPVW-D7KKK-3GKT6-VCFB2',
+    'Education N': '2WH4N-8QGBV-H22JP-CT43Q-MDWWJ',
+    'Enterprise': 'NPPR9-FWDCX-D2C8J-H872K-2YT43',
+    'Enterprise N': 'DPH2V-TTNVB-4X9Q3-TJR4H-KHJW4',
+}
+
+
 def is_admin():
     try:
         return ctypes.windll.shell32.IsUserAnAdmin()
-    except:
+    except Exception:
         return False
+
+
+def get_windows_caption():
+    wim = GetObject('winmgmts:')
+    return [o.Caption for o in wim.ExecQuery(
+        "Select * from Win32_OperatingSystem")][0]
 
 
 def disable_win_update():
@@ -41,30 +62,14 @@ def activate_win():
     os.system("cls")
     print("--- Windows Activator ---")
 
-    wim = GetObject('winmgmts:')
-    windows_detected = ([o.Caption for o in wim.ExecQuery(
-        "Select * from Win32_OperatingSystem")][0])
+    windows_detected = get_windows_caption()
 
-    if windows_detected == 'Microsoft Windows 10 Home' or windows_detected == 'Microsoft Windows 11 Home':
-        serial_key = 'TX9XD-98N7V-6WMQ6-BX7FG-H8Q99'
-    elif windows_detected == 'Microsoft Windows 10 Home N' or windows_detected == 'Microsoft Windows 11 Home N':
-        serial_key = '3KHY7-WNT83-DGQKR-F7HPR-844BM'
-    elif windows_detected == 'Microsoft Windows 10 Pro' or windows_detected == 'Microsoft Windows 11 Pro':
-        serial_key = 'W269N-WFGWX-YVC9B-4J6C9-T83GX'
-    elif windows_detected == 'Microsoft Windows 10 Professional' or windows_detected == 'Microsoft Windows 11 Professional':
-        serial_key = 'W269N-WFGWX-YVC9B-4J6C9-T83GX'
-    elif windows_detected == 'Microsoft Windows 10 Professional N' or windows_detected == 'Microsoft Windows 11 Professional N':
-        serial_key = 'MH37W-N47XK-V7XM9-C7227-GCQG9'
-    elif windows_detected == 'Microsoft Windows 10 Education' or windows_detected == 'Microsoft Windows 11 Education':
-        serial_key = 'NW6C2-QMPVW-D7KKK-3GKT6-VCFB2'
-    elif windows_detected == 'Microsoft Windows 10 Education N' or windows_detected == 'Microsoft Windows 11 Education N':
-        serial_key = '2WH4N-8QGBV-H22JP-CT43Q-MDWWJ'
-    elif windows_detected == 'Microsoft Windows 10 Enterprise' or windows_detected == 'Microsoft Windows 11 Enterprise':
-        serial_key = 'NPPR9-FWDCX-D2C8J-H872K-2YT43'
-    elif windows_detected == 'Microsoft Windows 10 Enterprise N' or windows_detected == 'Microsoft Windows 11 Enterprise N':
-        serial_key = 'DPH2V-TTNVB-4X9Q3-TJR4H-KHJW4'
+    edition = (windows_detected
+               .replace('Microsoft Windows 10 ', '')
+               .replace('Microsoft Windows 11 ', ''))
+    serial_key = WINDOWS_PRODUCT_KEYS.get(edition)
 
-    else:
+    if serial_key is None:
         print("\nError: invalid version\n")
         return
 
@@ -126,92 +131,141 @@ def run_disk_cleanup():
     os.system("cleanmgr")
 
 
+def clear_temp_folders():
+    os.system("cls")
+    print("Clearing temporary files...")
+
+    temp_dirs = [
+        os.environ.get('TEMP'),
+        os.environ.get('TMP'),
+        r'C:\Windows\Temp',
+    ]
+
+    seen = set()
+    deleted = 0
+    for temp_dir in temp_dirs:
+        if not temp_dir:
+            continue
+        temp_dir = os.path.normpath(temp_dir)
+        if temp_dir in seen or not os.path.isdir(temp_dir):
+            continue
+        seen.add(temp_dir)
+
+        print("Cleaning: " + temp_dir)
+        for entry in os.listdir(temp_dir):
+            path = os.path.join(temp_dir, entry)
+            try:
+                if os.path.isfile(path) or os.path.islink(path):
+                    os.remove(path)
+                    deleted += 1
+                elif os.path.isdir(path):
+                    shutil.rmtree(path, ignore_errors=True)
+                    deleted += 1
+            except (PermissionError, OSError):
+                # File or folder in use — skip it.
+                pass
+
+    print("\nDone. Removed {} items (files in use were skipped).".format(deleted))
+
+
+def flush_dns_reset_network():
+    os.system("cls")
+    print("Flushing DNS and resetting network...")
+    os.system("ipconfig /flushdns")
+    os.system("netsh winsock reset")
+    os.system("netsh int ip reset")
+    print("\nDone. Please restart your computer for the reset to take full effect.")
+
+
 
 if is_admin():
-    # ask for file name
     while True:
-        option = ""
         bit64 = ""
 
+        print('https://github.com/diogomcasado\n')
+
+        print("---- Windows Info ----")
+        print("")
+        print(os.environ['COMPUTERNAME'])
+        print(os.environ['USERNAME'])
+        print(os.environ['PROCESSOR_ARCHITECTURE'], os.environ['NUMBER_OF_PROCESSORS'], "cores")
+
         try:
-            print('https://github.com/diogomcasado\n')
-
-            print("---- Windows Info ----")
-            print("")
-            print(os.environ['COMPUTERNAME'])
-            print(os.environ['USERNAME'])
-            print(os.environ['PROCESSOR_ARCHITECTURE'], os.environ['NUMBER_OF_PROCESSORS'], "cores")
-
-            try:
-                if bitness.is_64bit():
-                    bit64 = "64-bit"
-                else:
-                    bit64 = "32-bit"
-            except:
-                bit64 = "??-bit"
-            
-            wim = GetObject('winmgmts:')
-            print([o.Caption for o in wim.ExecQuery("Select * from Win32_OperatingSystem")][0], bit64)
-
-            try:
-                print("Current Windows Serial Key: ",
-                      product_key.get_windows_product_key_from_reg())
-            except:
-                print("Current Windows Serial Key: Not detected")
-
-            try:
-                print("Server: ", server.get_windows_version())
-            except:
-                print("Server: Not detected")
-
-            try:
-                if windows_firewall.is_firewall_active():
-                    print("Firewall: Active")
-                else:
-                    print("Firewall: Inactive")
-            except:
-                print("Firewall: Not detected")
-
-
-            print()
-
-            print("\n---- Windows Tools ----")
-            print("\n1- Disable Windows update")
-            print("2- Activate Windows update")
-            print("3- Activate Windows license (KMS)")
-            print("4- Remove Windows license")
-            print("5- Disable Windows telemetry and diagnostics")
-            print("6- Enable Windows telemetry and diagnostics")
-            print("7- Repair missing or corrupted system files (SFC.exe)")
-            print("8- Disk error checking (CHKDSK)")
-            print("9- Disk cleanup (CLEANMGR)\n")
-            option = input("Select an option: ")
-
-        finally:
-            if option == "1":
-                disable_win_update()
-            elif option == "2":
-                enable_win_update()
-            elif option == "3":
-                activate_win()
-            elif option == "4":
-                deactivate_win()
-            elif option == "5":
-                disable_telemetry()
-            elif option == "6":
-                enable_telemetry()
-            elif option == "7":
-                run_system_file_checker()
-            elif option == "8":
-                run_CHKDSK()
-            elif option == "9":
-                run_disk_cleanup()
+            if bitness.is_64bit():
+                bit64 = "64-bit"
             else:
-                print("Invalid option")
-            break
+                bit64 = "32-bit"
+        except Exception:
+            bit64 = "??-bit"
 
-    print("Press Enter Key to close.")
-    input()
+        print(get_windows_caption(), bit64)
+
+        try:
+            print("Current Windows Serial Key: ",
+                  product_key.get_windows_product_key_from_reg())
+        except Exception:
+            print("Current Windows Serial Key: Not detected")
+
+        try:
+            print("Server: ", server.get_windows_version())
+        except Exception:
+            pass
+
+        try:
+            if windows_firewall.is_firewall_active():
+                print("Firewall: Active")
+            else:
+                print("Firewall: Inactive")
+        except Exception:
+            print("Firewall: Not detected")
+
+        print()
+
+        print("\n---- Windows Tools ----")
+        print("\n1- Disable Windows update")
+        print("2- Activate Windows update")
+        print("3- Activate Windows license (KMS)")
+        print("4- Remove Windows license")
+        print("5- Disable Windows telemetry and diagnostics")
+        print("6- Enable Windows telemetry and diagnostics")
+        print("7- Repair missing or corrupted system files (SFC.exe)")
+        print("8- Disk error checking (CHKDSK)")
+        print("9- Disk cleanup (CLEANMGR)")
+        print("10- Clear temporary files")
+        print("11- Flush DNS and reset network")
+        print("0- Exit\n")
+        option = input("Select an option: ")
+
+        if option == "0":
+            break
+        elif option == "1":
+            disable_win_update()
+        elif option == "2":
+            enable_win_update()
+        elif option == "3":
+            activate_win()
+        elif option == "4":
+            deactivate_win()
+        elif option == "5":
+            disable_telemetry()
+        elif option == "6":
+            enable_telemetry()
+        elif option == "7":
+            run_system_file_checker()
+        elif option == "8":
+            run_CHKDSK()
+        elif option == "9":
+            run_disk_cleanup()
+        elif option == "10":
+            clear_temp_folders()
+        elif option == "11":
+            flush_dns_reset_network()
+        else:
+            print("Invalid option")
+
+        print("\nPress Enter Key to continue.")
+        input()
+        os.system("cls")
 
 
 else:

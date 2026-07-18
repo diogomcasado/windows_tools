@@ -1,15 +1,33 @@
 # windows_tools
 
-Python script to:
-- Activate/deactivate windows 10/11
+A simple command-line utility to run common Windows 10/11 maintenance and optimization tasks from a single menu.
+
+## Features
+
+- Activate/deactivate Windows 10/11
 - Disable/enable Windows updates
-- Disable/enable Telemetry and diagnostics
+- Disable/enable telemetry and diagnostics
 - Repair missing or corrupted system files
 - Disk error checking
 - Disk cleanup
+- Clear temporary files
+- Flush DNS and reset network
 
 ![Screenshot](https://github.com/diogomcasado/windows_tools/blob/main/screenshot.PNG)
 
+## Requirements
+
+- Windows 10/11
+- Python 3
+- Dependencies: `pip install pywin32 windows-tools`
+
+## Usage
+
+Run the script; it will automatically request administrator privileges:
+
+```
+python windows_tools.py
+```
 
 Made for educational purposes only.
 
